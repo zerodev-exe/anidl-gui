@@ -17,8 +17,13 @@ function App() {
     setAnimeList(result as any);
   };
 
-  const handleDownload = async (url: string) => {
-    await invoke('download_anime', { url });
+  const handleDownload = async (animeUrlEnding: string, animeName: string) => { // Updated key name
+    console.log(`Downloading anime with URL ending: ${animeUrlEnding} and name: ${animeName}`);
+    try {
+      await invoke('download_anime', { animeUrlEnding, animeName }); // Updated key name
+    } catch (error) {
+      console.error('Error invoking download_anime:', error);
+    }
   };
 
   return (
@@ -33,11 +38,13 @@ function App() {
         <button type="submit">Search</button>
       </form>
       {animeList.map((anime, index) => (
-        <div key={index}>
+        <div className="anime-card" key={index}>
           <img className="thumbnail" src={anime.img_url} alt={anime.title} />
           <p>Title: {anime.title}</p>
-          <p>URL: {anime.url}</p>
-          <button onClick={() => handleDownload(anime.url)}>Download</button>
+          <button onClick={() => {
+            console.log(`Button clicked for URL: ${anime.url}`);
+            handleDownload(anime.url, anime.title);
+          }}>Download</button>
         </div>
       ))}
     </div>

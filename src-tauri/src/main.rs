@@ -2,10 +2,8 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use gogoanime_scraper::*;
-use reqwest::Client;
+use scraper::get_anime_episodes_and_download_the_episodes;
 use serde::Serialize;
-use std::fs::File;
-use std::io::copy;
 
 #[derive(Serialize)]
 struct AnimeInfo {
@@ -31,13 +29,10 @@ async fn search_anime(name: &str) -> Result<Vec<AnimeInfo>, String> {
 }
 
 #[tauri::command]
-async fn download_anime(url: &str) -> Result<(), String> {
-    let client = Client::new();
-    let response = client.get(url).send().await.map_err(|e| e.to_string())?;
-    let mut file = File::create("downloaded_anime.mp4").map_err(|e| e.to_string())?;
-    let mut content = response.bytes().await.map_err(|e| e.to_string())?;
-    copy(&mut content.as_ref(), &mut file).map_err(|e| e.to_string())?;
-    println!("Downloaded anime to {:?}", content);
+async fn download_anime(anime_url_ending: &str, anime_name: &str) -> Result<(), String> {
+    get_anime_episodes_and_download_the_episodes(anime_url_ending.to_string(), anime_name)
+        .await
+        .unwrap();
     Ok(())
 }
 
