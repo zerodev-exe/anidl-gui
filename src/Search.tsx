@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/tauri";
 import "./App.css";
 
@@ -14,15 +14,30 @@ function Search() {
   const [searchTerm, setSearchTerm] = useState("");
   const [animeList, setAnimeList] = useState<Anime[]>([]);
   const [loading, setLoading] = useState(false);
-  const [filterDub, setFilterDub] = useState(false); // Add this line
+  const [filterDub, setFilterDub] = useState(false);
+  const [filterSub, setFilterSub] = useState(false);
+
+  useEffect(() => {
+    const fetchFilters = async () => {
+      const isDub = await invoke("get_filter_dub") as boolean;
+      const isSub = await invoke("get_filter_sub") as boolean;
+      setFilterDub(isDub);
+      setFilterSub(isSub);
+    };
+    fetchFilters();
+  }, []);
 
   const handleSearch = async () => {
     setLoading(true);
     const result = await invoke("search_anime", { name: searchTerm });
     let filteredResult = result as Anime[];
+
     if (filterDub) {
       filteredResult = filteredResult.filter(anime => anime.title.includes("(Dub)"));
+    } else if (filterSub) {
+      filteredResult = filteredResult.filter(anime => !anime.title.includes("(Dub)")); // Exclude dubbed
     }
+
     setAnimeList(filteredResult);
     setLoading(false);
   };
@@ -59,6 +74,22 @@ function Search() {
     }
   };
 
+  const handleCheckboxChangeDub = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const isChecked = e.target.checked;
+    setFilterDub(isChecked);
+    setFilterSub(!isChecked); // Uncheck the subbed filter
+    await invoke('set_filter_dub', { isDub: isChecked });
+    await invoke('set_filter_sub', { isSub: !isChecked }); // Update sub filter state
+  };
+
+  const handleCheckboxChangeSub = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const isChecked = e.target.checked;
+    setFilterSub(isChecked);
+    setFilterDub(!isChecked); // Uncheck the dubbed filter
+    await invoke('set_filter_sub', { isSub: isChecked });
+    await invoke('set_filter_dub', { isDub: !isChecked }); // Update dub filter state
+  };
+
   return (
     <div>
       <form
@@ -75,15 +106,26 @@ function Search() {
         <button type="submit" disabled={loading}>
           {loading ? "Searching..." : "Search"}
         </button>
+        <br />
         <label>
           <input
             type="checkbox"
             checked={filterDub}
-            onChange={(e) => setFilterDub(e.target.checked)}
+            onChange={handleCheckboxChangeDub}
           />
           Only show Dubbed
         </label>
+        <br />
+        <label>
+          <input
+            type="checkbox"
+            checked={filterSub}
+            onChange={handleCheckboxChangeSub}
+          />
+          Only show Subbed
+        </label>
       </form>
+
       {animeList.map((anime, index) => (
         <div className="anime-card" key={index}>
           <img className="thumbnail" src={anime.img_url} alt={anime.title} />

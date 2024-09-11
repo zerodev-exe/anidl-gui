@@ -126,7 +126,27 @@ button {
   align-items: center;
   margin: 10px;
   padding: 10px;
-  border: 1px solid #ccc;
+  border: 5px solid #ccc;
   border-radius: 10px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+input[type="checkbox"] {
+  appearance: none;
+  width: 15px;
+  height: 15px;
+  border: 2px solid #646cff;
+  border-radius: 4px;
+  outline: none;
+  cursor: pointer;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+input[type="checkbox"]:checked {
+  background-color: #646cff;
+  border-color: #535bf2;
+}
+
+label {
+  margin-right: 1rem;
 }

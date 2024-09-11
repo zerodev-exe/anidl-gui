@@ -1254,9 +1254,9 @@ dependencies = [
 
 [[package]]
 name = "gogoanime-scraper"
-version = "1.1.5"
+version = "1.1.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1d9551770293f91b0828d8afbad5efd9235eeb3be01550eba828743106019f5d"
+checksum = "cf326ac8f03b24d6e96c637ee629d951d10789bf65b2a1bec43c08da1a5297ae"
 dependencies = [
  "async-trait",
  "chrono",
@@ -4756,6 +4756,7 @@ dependencies = [
 name = "zero-anime-downloader"
 version = "0.1.0"
 dependencies = [
+ "dirs",
  "gogoanime-scraper",
  "reqwest",
  "serde",
