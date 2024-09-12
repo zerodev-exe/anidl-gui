@@ -5,7 +5,6 @@ use gogoanime_scraper::*;
 use scraper::get_anime_episodes_and_download_the_episodes;
 use serde::{Deserialize, Serialize};
 use std::fs;
-use dirs;
 
 #[derive(Serialize, Deserialize)]
 struct Settings {
