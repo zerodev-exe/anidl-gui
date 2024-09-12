@@ -1,0 +1,57 @@
+name: CI/CD for Tauri App
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest] # Define the platforms
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16' # Specify your Node.js version
+
+      - name: Install dependencies
+        run: |
+          npm install
+          npm install -g tauri
+
+      - name: Build Tauri App
+        run: |
+          npm run build
+          npm run tauri build
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: anidl-gui-${{ matrix.os }} # Name artifacts based on OS
+          path: src-tauri/target/release/bundle/** # Adjust the path as necessary
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: tauri-app-ubuntu-latest # Adjust for specific OS if needed
+
+      - name: Deploy to your server or service
+        run: |
+          # Add your deployment commands here
+          echo "Deploying the app..."
