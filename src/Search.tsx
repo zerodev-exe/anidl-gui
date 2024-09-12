@@ -30,12 +30,13 @@ function Search() {
   const handleSearch = async () => {
     setLoading(true);
     const result = await invoke("search_anime", { name: searchTerm });
+    const filter_word = "(Dub)";
     let filteredResult = result as Anime[];
 
     if (filterDub) {
-      filteredResult = filteredResult.filter(anime => anime.title.includes("(Dub)"));
+      filteredResult = filteredResult.filter(anime => anime.title.includes(filter_word));
     } else if (filterSub) {
-      filteredResult = filteredResult.filter(anime => !anime.title.includes("(Dub)")); // Exclude dubbed
+      filteredResult = filteredResult.filter(anime => !anime.title.includes(filter_word));
     }
 
     setAnimeList(filteredResult);
@@ -77,7 +78,9 @@ function Search() {
   const handleCheckboxChangeDub = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const isChecked = e.target.checked;
     setFilterDub(isChecked);
-    setFilterSub(!isChecked); // Uncheck the subbed filter
+    if (isChecked) {
+      setFilterSub(false); // Uncheck the subbed filter if dubbed is checked
+    }
     await invoke('set_filter_dub', { isDub: isChecked });
     await invoke('set_filter_sub', { isSub: !isChecked }); // Update sub filter state
   };
@@ -85,7 +88,9 @@ function Search() {
   const handleCheckboxChangeSub = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const isChecked = e.target.checked;
     setFilterSub(isChecked);
-    setFilterDub(!isChecked); // Uncheck the dubbed filter
+    if (isChecked) {
+      setFilterDub(false); // Uncheck the dubbed filter if subbed is checked
+    }
     await invoke('set_filter_sub', { isSub: isChecked });
     await invoke('set_filter_dub', { isDub: !isChecked }); // Update dub filter state
   };
