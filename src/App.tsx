@@ -1,5 +1,5 @@
 import Search from './Search';
-import z from '/public/z.svg';
+import z from '/z.svg';
 
 function App() {
 	return (
