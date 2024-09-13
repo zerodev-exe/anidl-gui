@@ -136,6 +136,7 @@ input[type="checkbox"] {
   border-radius: 4px;
   outline: none;
   cursor: pointer;
+  vertical-align: middle;
   transition: background-color 0.3s, border-color 0.3s;
 }
 
@@ -144,6 +145,9 @@ input[type="checkbox"]:checked {
   border-color: #535bf2;
 }
 
-label {
-  margin-right: 1rem;
+label, input[type="checkbox"] + label {
+  margin-top: 10px;
+  vertical-align: middle;
+  display: inline-block;
+  margin-left: 5px; /* Add some space between the checkbox and the label */
 }
