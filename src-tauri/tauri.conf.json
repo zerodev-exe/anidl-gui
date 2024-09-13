@@ -15,13 +15,16 @@
       "shell": {
         "all": false,
         "open": true
+      },
+      "notification": {
+        "all": true
       }
     },
     "windows": [
       {
         "title": "Zero's Anime Downloader",
-        "width": 800,
-        "height": 600
+        "width": 1300,
+        "height": 800
       }
     ],
     "security": {
