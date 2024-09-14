@@ -5,6 +5,7 @@ use gogoanime_scraper::*;
 use scraper::get_anime_episodes_and_download_the_episodes;
 use serde::{Deserialize, Serialize};
 use std::fs;
+use std::path::Path;
 
 #[derive(Serialize, Deserialize)]
 struct Settings {
@@ -68,8 +69,9 @@ async fn download_anime(anime_url_ending: &str, anime_name: &str) -> Result<(), 
         .await
         .unwrap();
 
-    // Send notification
-    tauri::api::notification::Notification::new("Download Complete")
+    let notification = tauri::api::notification::Notification::new("Download Complete");
+
+    notification
         .title("Download Complete")
         .body(format!("The download of {} is complete!", anime_name))
         .show()
@@ -104,6 +106,54 @@ async fn set_filter_sub(is_sub: bool) -> Result<(), String> {
     save_settings(&settings)
 }
 
+#[tauri::command]
+fn check_downloads() -> Result<serde_json::Value, String> {
+    let home_dir = dirs::home_dir().ok_or("Could not find home directory")?;
+    let anime_dir = home_dir.join("Videos").join("Anime");
+
+    let mut downloading = Vec::new();
+    let mut downloaded = Vec::new();
+
+    if let Ok(entries) = fs::read_dir(&anime_dir) {
+        for entry in entries.flatten() {
+            if let Ok(file_type) = entry.file_type() {
+                if file_type.is_dir() {
+                    let folder_name = entry.file_name();
+                    let folder_path = anime_dir.join(&folder_name);
+                    
+                    if has_tmp_file(&folder_path) {
+                        downloading.push(folder_name.to_string_lossy().into_owned());
+                    } else {
+                        downloaded.push(folder_name.to_string_lossy().into_owned());
+                    }
+                }
+            }
+        }
+    }
+
+    Ok(serde_json::json!({
+        "downloading": downloading,
+        "downloaded": downloaded
+    }))
+}
+
+fn has_tmp_file(dir: &Path) -> bool {
+    if let Ok(entries) = fs::read_dir(dir) {
+        for entry in entries.flatten() {
+            if let Ok(file_type) = entry.file_type() {
+                if file_type.is_file() {
+                    if let Some(extension) = entry.path().extension() {
+                        if extension == "tmp" {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    false
+}
+
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
@@ -112,7 +162,8 @@ fn main() {
             get_filter_dub,
             set_filter_dub,
             get_filter_sub,
-            set_filter_sub
+            set_filter_sub,
+            check_downloads
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
