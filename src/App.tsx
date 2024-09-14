@@ -1,4 +1,4 @@
-import Search from './Search';
+import Search from '../components/Search';
 import z from '/z.svg';
 
 function App() {
