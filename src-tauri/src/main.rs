@@ -1,6 +1,8 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod download;
+use download::*;
 use gogoanime_scraper::*;
 use scraper::get_anime_episodes_and_download_the_episodes;
 use serde::{Deserialize, Serialize};
@@ -39,8 +41,8 @@ fn save_settings(settings: &Settings) -> Result<(), String> {
 
 #[derive(Serialize)]
 struct AnimeInfo {
-    title: String,
     url: String,
+    title: String,
     img_url: String,
 }
 
@@ -120,7 +122,7 @@ fn check_downloads() -> Result<serde_json::Value, String> {
                 if file_type.is_dir() {
                     let folder_name = entry.file_name();
                     let folder_path = anime_dir.join(&folder_name);
-                    
+
                     if has_tmp_file(&folder_path) {
                         downloading.push(folder_name.to_string_lossy().into_owned());
                     } else {
