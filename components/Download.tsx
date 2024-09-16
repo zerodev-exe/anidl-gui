@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/tauri";
+import "./Download.css";
 
 function Download() {
   const [downloading, setDownloading] = useState<string[]>([]);
@@ -18,13 +19,13 @@ function Download() {
     };
 
     checkDownloads();
-    const interval = setInterval(checkDownloads, 5000); // Check every 5 seconds
+    const interval = setInterval(checkDownloads, 500); // Check every 500 milliseconds (0.5 seconds)
 
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <div>
+    <div className="download-container">
       <h1>Downloaded</h1>
       <ul>
         {downloaded.map((folder, index) => (
