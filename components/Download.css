@@ -4,3 +4,18 @@
   display: flex;
   flex-direction: column;
 }
+
+.download-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.download-item {
+  margin-bottom: 10px;
+}
+
+.folder-name {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}

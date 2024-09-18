@@ -80,12 +80,16 @@ name = "anidl-gui"
 version = "0.1.0"
 dependencies = [
  "dirs",
+ "futures",
  "gogoanime-scraper",
+ "lazy_static",
  "reqwest",
+ "scraper",
  "serde",
  "serde_json",
  "tauri",
  "tauri-build",
+ "tokio",
  "toml 0.8.19",
 ]
 
