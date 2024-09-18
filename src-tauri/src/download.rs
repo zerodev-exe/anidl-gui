@@ -75,8 +75,12 @@ async fn download_content(
     while let Some(chunk) = response.chunk().await? {
         file.write_all(&chunk).await?;
         downloaded += chunk.len() as u64;
-        let progress = (downloaded as f64 / total_size as f64) * 100.0;
-        update_download_progress(full_file_path, progress);
+
+        // Calculate progress only if total_size is greater than 0
+        if total_size > 0 {
+            let progress = (downloaded as f64 / total_size as f64) * 100.0;
+            update_download_progress(full_file_path, progress);
+        }
     }
 
     tokio::fs::rename(&temp_file_path, full_file_path).await?;

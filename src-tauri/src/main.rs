@@ -137,18 +137,19 @@ async fn check_downloads() -> Result<serde_json::Value, String> {
                     let downloaded_episodes = count_mp4_files(&folder_path);
 
                     if has_tmp_file(&folder_path) {
-                        let total_episodes = scraper::get_how_many_episodes_are_there(
-                            folder_name
-                                .to_string_lossy()
-                                .trim()
-                                .replace("(", "")
-                                .replace(")", "")
-                                .replace(" ", "-")
-                                .to_lowercase()
-                                .to_owned(),
-                        )
-                        .await
-                        .unwrap_or(0);
+                        let anime_url_ending = folder_name
+                            .to_string_lossy()
+                            .trim()
+                            .replace("(", "")
+                            .replace(")", "")
+                            .replace(" ", "-")
+                            .to_lowercase()
+                            .to_owned();
+
+                        let total_episodes =
+                            scraper::get_how_many_episodes_are_there(anime_url_ending)
+                                .await
+                                .unwrap_or(0);
 
                         downloading.push(folder_name.to_string_lossy().into_owned());
                         progress.insert(
