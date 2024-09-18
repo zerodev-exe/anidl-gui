@@ -216,7 +216,7 @@ async fn create_download_task(
 }
 
 // Main function to fetch anime episodes
-pub async fn get_how_many_episodes_are_there(
+pub async fn get_how_many_episodes_there_are(
     anime_url_ending: String,
 ) -> Result<usize, Box<dyn std::error::Error>> {
     let client = initialize_client();
@@ -254,11 +254,11 @@ mod tests {
         let anime_url_ending = "bleach-dub".to_string();
 
         // Test for a known number of episodes
-        let total_episodes = get_how_many_episodes_are_there(anime_url_ending)
+        let total_episodes = get_how_many_episodes_there_are(anime_url_ending)
             .await
             .unwrap();
 
-        let one_piece = get_how_many_episodes_are_there("one-piece-dub".to_string())
+        let one_piece = get_how_many_episodes_there_are("one-piece-dub".to_string())
             .await
             .unwrap();
 

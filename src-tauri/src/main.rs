@@ -147,7 +147,7 @@ async fn check_downloads() -> Result<serde_json::Value, String> {
                             .to_owned();
 
                         let total_episodes =
-                            scraper::get_how_many_episodes_are_there(anime_url_ending)
+                            scraper::get_how_many_episodes_there_are(anime_url_ending)
                                 .await
                                 .unwrap_or(0);
 
