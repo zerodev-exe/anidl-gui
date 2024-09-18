@@ -1,43 +1,41 @@
 {
-  "build": {
-    "beforeDevCommand": "pnpm dev",
-    "beforeBuildCommand": "pnpm build",
-    "devPath": "http://localhost:1420",
-    "distDir": "../dist"
-  },
-  "package": {
-    "productName": "anidl-gui",
-    "version": "1.0.4"
-  },
-  "tauri": {
-    "allowlist": {
-      "all": false,
-      "shell": {
-        "all": false,
-        "open": true
-      },
-      "notification": {
-        "all": true
-      }
+    "build": {
+        "beforeDevCommand": "pnpm dev",
+        "beforeBuildCommand": "pnpm build",
+        "devPath": "http://localhost:1420",
+        "distDir": "../dist"
     },
-    "windows": [
-      {
-        "title": "Zero's Anime Downloader",
-        "width": 1300,
-        "height": 800
-      }
-    ],
-    "security": {
-      "csp": null
+    "package": {
+        "productName": "anidl-gui",
+        "version": "1.0.5"
     },
-    "bundle": {
-      "active": true,
-      "targets": "all",
-      "identifier": "com.anidl-gui.app",
-      "icon": [
-        "icons/icon.icns",
-        "icons/icon.ico"
-      ]
+    "tauri": {
+        "allowlist": {
+            "all": false,
+            "shell": {
+                "all": false,
+                "open": true
+            },
+            "notification": {
+                "all": true
+            }
+        },
+        "windows": [{
+            "title": "Zero's Anime Downloader",
+            "width": 1300,
+            "height": 800
+        }],
+        "security": {
+            "csp": null
+        },
+        "bundle": {
+            "active": true,
+            "targets": "all",
+            "identifier": "com.anidl-gui.app",
+            "icon": [
+                "icons/icon.icns",
+                "icons/icon.ico"
+            ]
+        }
     }
-  }
 }
