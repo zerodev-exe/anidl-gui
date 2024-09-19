@@ -14,7 +14,7 @@ tauri-build = { version = "1", features = [] }
 tauri = { version = "1", features = [ "notification-all", "shell-open", "notification"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1"
-gogoanime-scraper = "1.1.6"
+gogoanime-scraper = "1.2"
 tokio = { version = "1", features = ["full"] }
 reqwest = { version = "0.12", features = ["cookies"] }
 dirs = "5.0.1"
