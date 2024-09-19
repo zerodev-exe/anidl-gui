@@ -88,6 +88,9 @@ async fn check_downloads() -> Result<serde_json::Value, String> {
                             .replace("(", "")
                             .replace(")", "")
                             .replace(" ", "-")
+                            .replace("!", "")
+                            .replace("/", "")
+                            .replace(".", "")
                             .to_lowercase()
                             .to_owned();
 

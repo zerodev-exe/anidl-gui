@@ -79,6 +79,18 @@ pub async fn get_anime_episodes_and_download_the_episodes(
 ) -> Result<(), Box<dyn std::error::Error>> {
     let client = initialize_client();
 
+    let path = path
+        .trim()
+        .replace(":", "")
+        .replace("/", "")
+        .replace("\\", "")
+        .replace("*", "")
+        .replace("?", "")
+        .replace("\"", "")
+        .replace("<", "")
+        .replace(">", "")
+        .replace("|", "");
+
     fetch_login_page(&client).await?;
     let csrf_token = get_csrf_token(&client).await?;
     login(&client, &csrf_token).await?;
@@ -233,10 +245,9 @@ pub async fn get_how_many_episodes_there_are(
 ) -> Result<u32, Box<dyn std::error::Error>> {
     let url = format!("{CAT_URL}{anime_url_ending}");
 
-    let body =reqwest::get(&url).await.unwrap().text().await.unwrap();
-    let total_episodes = parser::get_total_number_of_episodes(body).unwrap();
-
-    Ok(total_episodes)
+    let body = reqwest::get(&url).await.unwrap().text().await?;
+    let total_episodes = parser::get_total_number_of_episodes(body)?; // Use `?` to propagate the error
+    Ok(total_episodes) // Return the total_episodes
 }
 
 #[cfg(test)]
