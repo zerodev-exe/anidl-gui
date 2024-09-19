@@ -1,7 +1,6 @@
 use crate::download;
 use futures::future::join_all;
-use gogoanime_scraper::parser;
-use gogoanime_scraper::URL;
+use gogoanime_scraper::{parser, CAT_URL, URL};
 use scraper::{Html, Selector};
 use std::sync::Arc;
 use tokio::sync::Semaphore;
@@ -107,6 +106,19 @@ pub async fn get_anime_episodes_and_download_the_episodes(
 
         let response = reqwest::get(&episode_url).await?;
         if response.status() != reqwest::StatusCode::OK {
+            let body = reqwest::get(format!("{CAT_URL}{anime_url_ending}"))
+                .await
+                .unwrap()
+                .text()
+                .await
+                .unwrap();
+
+            let tmp_anime_episode = format!("EP-{:04}.mp4.tmp", episode_number);
+            let tmp_file_path = full_path.join(tmp_anime_episode);
+
+            if parser::is_anime_ongoing(&body) {
+                let _ = std::fs::File::create(tmp_file_path);
+            }
             break;
         }
 
@@ -218,31 +230,13 @@ async fn create_download_task(
 // Main function to fetch anime episodes
 pub async fn get_how_many_episodes_there_are(
     anime_url_ending: String,
-) -> Result<usize, Box<dyn std::error::Error>> {
-    let client = initialize_client();
+) -> Result<u32, Box<dyn std::error::Error>> {
+    let url = format!("{CAT_URL}{anime_url_ending}");
 
-    fetch_login_page(&client).await?;
-    let csrf_token = get_csrf_token(&client).await?;
-    login(&client, &csrf_token).await?;
+    let body =reqwest::get(&url).await.unwrap().text().await.unwrap();
+    let total_episodes = parser::get_total_number_of_episodes(body).unwrap();
 
-    let mut left: u32 = 1;
-    let mut right: u32 = 3000; // Arbitrary upper limit for binary search
-    let mut total_episodes = 0;
-
-    while left <= right {
-        let mid = left + (right - left) / 2;
-        let episode_url = format!("{URL}/{}-episode-{}", anime_url_ending, mid);
-
-        let response = client.get(&episode_url).send().await?;
-        if response.status() == reqwest::StatusCode::OK {
-            total_episodes = mid; // Update total episodes found
-            left = mid + 1; // Search in the upper half
-        } else {
-            right = mid - 1; // Search in the lower half
-        }
-    }
-
-    Ok(total_episodes.try_into().unwrap())
+    Ok(total_episodes)
 }
 
 #[cfg(test)]
