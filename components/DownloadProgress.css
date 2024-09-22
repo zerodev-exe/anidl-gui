@@ -16,7 +16,7 @@
     transition: width 0.3s ease-in-out;
 }
 
-#progress-text {
+.progress-text {
     position: absolute;
     top: 50%;
     left: 50%;

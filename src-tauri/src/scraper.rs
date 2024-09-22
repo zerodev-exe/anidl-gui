@@ -118,17 +118,10 @@ pub async fn get_anime_episodes_and_download_the_episodes(
 
         let response = reqwest::get(&episode_url).await?;
         if response.status() != reqwest::StatusCode::OK {
-            let body = reqwest::get(format!("{CAT_URL}{anime_url_ending}"))
-                .await
-                .unwrap()
-                .text()
-                .await
-                .unwrap();
-
             let tmp_anime_episode = format!("EP-{:04}.mp4.tmp", episode_number);
             let tmp_file_path = full_path.join(tmp_anime_episode);
 
-            if parser::is_anime_ongoing(&body) {
+            if is_ongoing(anime_url_ending).await {
                 let _ = std::fs::File::create(tmp_file_path);
             }
             break;
@@ -247,7 +240,22 @@ pub async fn get_how_many_episodes_there_are(
 
     let body = reqwest::get(&url).await.unwrap().text().await?;
     let total_episodes = parser::get_total_number_of_episodes(body)?; // Use `?` to propagate the error
+
     Ok(total_episodes) // Return the total_episodes
+}
+
+pub async fn is_ongoing(anime_url_ending: String) -> bool {
+    let body = reqwest::get(format!("{CAT_URL}{anime_url_ending}"))
+        .await
+        .unwrap()
+        .text()
+        .await
+        .unwrap();
+    if parser::is_anime_ongoing(&body) {
+        true
+    } else {
+        false
+    }
 }
 
 #[cfg(test)]

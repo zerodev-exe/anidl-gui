@@ -70,6 +70,7 @@ async fn check_downloads() -> Result<serde_json::Value, String> {
 
     let mut downloading = Vec::new();
     let mut downloaded = Vec::new();
+    let mut ongoing = Vec::new(); // New vector for ongoing downloads
     let mut progress = std::collections::HashMap::new();
 
     if let Ok(entries) = fs::read_dir(&anime_dir) {
@@ -80,26 +81,33 @@ async fn check_downloads() -> Result<serde_json::Value, String> {
                     let folder_path = anime_dir.join(&folder_name);
 
                     let downloaded_episodes = count_mp4_files(&folder_path);
+                    let anime_url_ending = folder_name
+                        .to_string_lossy()
+                        .trim()
+                        .replace("(", "")
+                        .replace(")", "")
+                        .replace(" ", "-")
+                        .replace("!", "")
+                        .replace("/", "")
+                        .replace(".", "")
+                        .replace("'", "")
+                        .to_lowercase()
+                        .to_owned();
 
-                    if has_tmp_file(&folder_path) {
-                        let anime_url_ending = folder_name
-                            .to_string_lossy()
-                            .trim()
-                            .replace("(", "")
-                            .replace(")", "")
-                            .replace(" ", "-")
-                            .replace("!", "")
-                            .replace("/", "")
-                            .replace(".", "")
-                            .to_lowercase()
-                            .to_owned();
+                    let total_episodes = scraper::get_how_many_episodes_there_are(anime_url_ending)
+                        .await
+                        .unwrap_or(0);
 
-                        let total_episodes =
-                            scraper::get_how_many_episodes_there_are(anime_url_ending)
-                                .await
-                                .unwrap_or(0);
-
+                    if (downloaded_episodes as u32) < total_episodes && has_tmp_file(&folder_path) {
                         downloading.push(folder_name.to_string_lossy().into_owned());
+                        progress.insert(
+                            folder_name.to_string_lossy().into_owned(),
+                            (downloaded_episodes, total_episodes),
+                        );
+                    } else if downloaded_episodes as u32 == total_episodes
+                        && has_tmp_file(&folder_path)
+                    {
+                        ongoing.push(folder_name.to_string_lossy().into_owned());
                         progress.insert(
                             folder_name.to_string_lossy().into_owned(),
                             (downloaded_episodes, total_episodes),
@@ -108,7 +116,7 @@ async fn check_downloads() -> Result<serde_json::Value, String> {
                         downloaded.push(folder_name.to_string_lossy().into_owned());
                         progress.insert(
                             folder_name.to_string_lossy().into_owned(),
-                            (downloaded_episodes, downloaded_episodes.try_into().unwrap()),
+                            (downloaded_episodes, total_episodes),
                         ); // Use downloaded_episodes as total_episodes
                     }
                 }
@@ -119,6 +127,7 @@ async fn check_downloads() -> Result<serde_json::Value, String> {
     Ok(serde_json::json!({
         "downloading": downloading,
         "downloaded": downloaded,
+        "ongoing": ongoing, // Include ongoing in the response
         "progress": progress
     }))
 }

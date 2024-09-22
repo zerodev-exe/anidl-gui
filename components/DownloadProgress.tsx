@@ -6,14 +6,15 @@ interface DownloadProgressProps {
     fileName: string;
     downloadedEpisodes: number;
     totalEpisodes: number;
+    color?: string; // New optional color prop
 }
 
-const DownloadProgress: React.FC<DownloadProgressProps> = ({ progress, fileName, downloadedEpisodes, totalEpisodes }) => {
+const DownloadProgress: React.FC<DownloadProgressProps> = ({ progress, fileName, downloadedEpisodes, totalEpisodes, color }) => {
     const displayProgress = isNaN(progress) ? 0 : progress;
     return (
         <div className="download-progress">
-            <div className="progress-bar" style={{ width: `${displayProgress}%` }}></div>
-            <span id="progress-text">
+            <div className="progress-bar" style={{ width: `${displayProgress}%`, backgroundColor: color || '#006400' }}></div>
+            <span className="progress-text">
                 {fileName}: {downloadedEpisodes}/{totalEpisodes} episodes ({displayProgress.toFixed(1)}%)
             </span>
         </div>
