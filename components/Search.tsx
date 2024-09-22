@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/tauri";
+import { useSearch } from '../contexts/SearchContext';
 import "../src/App.css";
 
 interface Anime {
@@ -11,11 +12,9 @@ interface Anime {
 }
 
 function Search() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [animeList, setAnimeList] = useState<Anime[]>([]);
+  const { searchTerm, setSearchTerm, filterDub, setFilterDub, filterSub, setFilterSub } = useSearch();
   const [loading, setLoading] = useState(false);
-  const [filterDub, setFilterDub] = useState(false);
-  const [filterSub, setFilterSub] = useState(false);
+  const [animeList, setAnimeList] = useState<Anime[]>([]);
 
   useEffect(() => {
     const fetchFilters = async () => {
@@ -97,12 +96,10 @@ function Search() {
 
   return (
     <div>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleSearch();
-        }}
-      >
+      <form onSubmit={(e) => {
+        e.preventDefault();
+        handleSearch();
+      }}>
         <input
           type="text"
           value={searchTerm}
