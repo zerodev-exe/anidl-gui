@@ -98,7 +98,7 @@ async fn check_downloads() -> Result<serde_json::Value, String> {
                         .await
                         .unwrap_or(0);
 
-                    if (downloaded_episodes as u32) < total_episodes && has_tmp_file(&folder_path) {
+                    if (downloaded_episodes as u32) < total_episodes {
                         downloading.push(folder_name.to_string_lossy().into_owned());
                         progress.insert(
                             folder_name.to_string_lossy().into_owned(),
