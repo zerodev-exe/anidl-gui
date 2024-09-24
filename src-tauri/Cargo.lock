@@ -1494,9 +1494,9 @@ dependencies = [
 
 [[package]]
 name = "gogoanime-scraper"
-version = "1.2.1"
+version = "1.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "26204fddff61b4033201db09e1bad441c67f15865d89a3e28a0bd1fcffc57b75"
+checksum = "e4aa369adfc3b12842bf2a93bfe5e353e3ec7e42d4504fad1567b490b1462935"
 dependencies = [
  "async-trait",
  "chrono",
