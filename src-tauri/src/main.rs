@@ -45,6 +45,39 @@ async fn search_anime(name: &str) -> Result<Vec<AnimeInfo>, String> {
 }
 
 #[tauri::command]
+async fn retry_button(anime_name: &str) -> Result<(), String> {
+    if anime_name.is_empty() {
+        return Err("Anime URL ending is empty".to_string());
+    }
+
+    let anime = anime_name
+        .trim()
+        .replace(" ", "-")
+        .replace("(", "")
+        .replace(")", "")
+        .replace("!", "")
+        .replace("/", "")
+        .replace(".", "")
+        .replace("'", "")
+        .to_lowercase()
+        .to_owned();
+
+    get_anime_episodes_and_download_the_episodes(anime.to_string(), anime_name)
+        .await
+        .unwrap();
+
+    let notification = tauri::api::notification::Notification::new("Download Complete");
+
+    notification
+        .title("Download Complete")
+        .body(format!("The download of {} is complete!", anime_name))
+        .show()
+        .map_err(|e| e.to_string())?;
+
+    Ok(())
+}
+
+#[tauri::command]
 async fn download_anime(anime_url_ending: &str, anime_name: &str) -> Result<(), String> {
     if anime_url_ending.is_empty() {
         return Err("Anime URL ending is empty".to_string());
@@ -70,7 +103,7 @@ async fn check_downloads() -> Result<serde_json::Value, String> {
 
     let mut downloading = Vec::new();
     let mut downloaded = Vec::new();
-    let mut ongoing = Vec::new(); // New vector for ongoing downloads
+    let mut ongoing = Vec::new();
     let mut progress = std::collections::HashMap::new();
 
     if let Ok(entries) = fs::read_dir(&anime_dir) {
@@ -95,18 +128,16 @@ async fn check_downloads() -> Result<serde_json::Value, String> {
                         .to_owned();
 
                     let total_episodes = scraper::get_how_many_episodes_there_are(anime_url_ending)
-                        .await
+                        .await.expect("msg")
                         .unwrap_or(0);
 
-                    if (downloaded_episodes as u32) < total_episodes {
+                    if downloaded_episodes < total_episodes {
                         downloading.push(folder_name.to_string_lossy().into_owned());
                         progress.insert(
                             folder_name.to_string_lossy().into_owned(),
                             (downloaded_episodes, total_episodes),
                         );
-                    } else if downloaded_episodes as u32 == total_episodes
-                        && has_tmp_file(&folder_path)
-                    {
+                    } else if downloaded_episodes == total_episodes && has_tmp_file(&folder_path) {
                         ongoing.push(folder_name.to_string_lossy().into_owned());
                         progress.insert(
                             folder_name.to_string_lossy().into_owned(),
@@ -117,7 +148,7 @@ async fn check_downloads() -> Result<serde_json::Value, String> {
                         progress.insert(
                             folder_name.to_string_lossy().into_owned(),
                             (downloaded_episodes, total_episodes),
-                        ); // Use downloaded_episodes as total_episodes
+                        );
                     }
                 }
             }
@@ -127,7 +158,7 @@ async fn check_downloads() -> Result<serde_json::Value, String> {
     Ok(serde_json::json!({
         "downloading": downloading,
         "downloaded": downloaded,
-        "ongoing": ongoing, // Include ongoing in the response
+        "ongoing": ongoing,
         "progress": progress
     }))
 }
@@ -169,7 +200,8 @@ fn main() {
             settings::set_filter_dub,
             settings::get_filter_sub,
             settings::set_filter_sub,
-            check_downloads
+            check_downloads,
+            retry_button,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
