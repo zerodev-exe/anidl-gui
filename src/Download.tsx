@@ -106,6 +106,7 @@ function Download() {
                                     fileName={info.folder} 
                                     downloadedEpisodes={info.downloadedEpisodes}
                                     totalEpisodes={info.totalEpisodes}
+                                    color="#222222"
                                 />
                             </div>
                         ))}
