@@ -2,6 +2,8 @@ use crate::download;
 use futures::future::join_all;
 use gogoanime_scraper::{parser, CAT_URL, URL};
 use scraper::{Html, Selector};
+use std::fs::OpenOptions;
+use std::io::{self, BufRead, Write};
 use std::sync::Arc;
 use tokio::sync::Semaphore;
 use tokio::task;
@@ -235,13 +237,53 @@ async fn create_download_task(
 // Main function to fetch anime episodes
 pub async fn get_how_many_episodes_there_are(
     anime_url_ending: String,
-) -> Result<u32, Box<dyn std::error::Error>> {
+) -> Result<Option<usize>, Box<dyn std::error::Error>> {
     let url = format!("{CAT_URL}{anime_url_ending}");
+    let videos_dir = dirs::video_dir().ok_or("Could not find the Videos directory")?;
+    let dotfile_path = videos_dir.join("Anime").join(".anime_episodes");
 
-    let body = reqwest::get(&url).await.unwrap().text().await?;
-    let total_episodes = parser::get_total_number_of_episodes(body)?; // Use `?` to propagate the error
+    // Check if the dotfile exists and read from it
+    let mut existing_entries = std::collections::HashMap::new();
+    if let Ok(file) = OpenOptions::new().read(true).open(&dotfile_path) {
+        let reader = io::BufReader::new(file);
+        for line in reader.lines() {
+            let line = line?;
+            let parts: Vec<&str> = line.split(':').collect();
+            if parts.len() == 3 {
+                existing_entries.insert(
+                    parts[0].to_string(),
+                    (parts[1].to_string(), parts[2].to_string()),
+                );
+            }
+        }
+    }
 
-    Ok(total_episodes) // Return the total_episodes
+    // Check if the anime is already in the dotfile
+    if let Some((total_episodes, ongoing_status)) = existing_entries.get(&anime_url_ending) {
+        if ongoing_status == "true" {
+            // Return None to indicate that the total episodes are not fixed
+            return Ok(None);
+        }
+        return Ok(Some(total_episodes.parse()?));
+    }
+
+    // Fetch the total episodes from the URL
+    let body = reqwest::get(&url).await?.text().await?;
+    let total_episodes: usize = parser::get_total_number_of_episodes(body)?;
+
+    // Write the anime_url_ending and total_episodes to the dotfile
+    let mut file = OpenOptions::new()
+        .write(true)
+        .create(true)
+        .append(true)
+        .open(dotfile_path)?;
+
+    // Check if the entry already exists before writing
+    if !existing_entries.contains_key(&anime_url_ending) {
+        writeln!(file, "{}:{}:{}", anime_url_ending, total_episodes, false)?;
+    }
+
+    Ok(Some(total_episodes))
 }
 
 pub async fn is_ongoing(anime_url_ending: String) -> bool {
@@ -267,15 +309,17 @@ mod tests {
         let anime_url_ending = "bleach-dub".to_string();
 
         // Test for a known number of episodes
-        let total_episodes = get_how_many_episodes_there_are(anime_url_ending)
+        let bleach = get_how_many_episodes_there_are(anime_url_ending)
             .await
+            .expect("msg")
             .unwrap();
 
         let one_piece = get_how_many_episodes_there_are("one-piece-dub".to_string())
             .await
+            .expect("msg")
             .unwrap();
 
-        assert_eq!(total_episodes, 366); // Adjust this based on your mock setup
+        assert_eq!(bleach, 366); // Adjust this based on your mock setup
         assert_eq!(one_piece, 1096)
     }
 }
