@@ -1,12 +1,16 @@
-# Zero Anime Downloader
+<h1 style="text-align:center;">ANIDL-GUI</h1>
 
-Zero Anime Downloader is a simple and efficient anime downloader that allows you to download your favorite anime series with just a few clicks.
+ANIDL-GUI is a simple and efficient anime downloader that allows you to download your favorite anime series with just a few clicks.
 
 ## Features
 
 - Download anime series in high quality
 - Download multiple episodes at once
 - Download anime in full HD quality
+
+## About
+
+This program was made with my library [anidl](https://github.com/zerodev-exe/anidl) aka [gogoanime-scraper](https://crates.io/crates/gogoanime-scraper)
 
 ## Recommended IDE Setup
 
