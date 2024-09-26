@@ -1,4 +1,4 @@
-use crate::download;
+use crate::{download, utils};
 use futures::future::join_all;
 use gogoanime_scraper::{parser, CAT_URL, URL};
 use scraper::{Html, Selector};

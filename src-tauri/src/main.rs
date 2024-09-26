@@ -4,6 +4,7 @@
 mod download;
 mod scraper;
 mod settings;
+mod utils;
 use gogoanime_scraper::get_anime_list_by_name;
 use scraper::get_anime_episodes_and_download_the_episodes;
 use serde::Serialize;
@@ -50,17 +51,8 @@ async fn retry_button(anime_name: &str) -> Result<(), String> {
         return Err("Anime URL ending is empty".to_string());
     }
 
-    let anime = anime_name
-        .trim()
-        .replace(" ", "-")
-        .replace("(", "")
-        .replace(")", "")
-        .replace("!", "")
-        .replace("/", "")
-        .replace(".", "")
-        .replace("'", "")
-        .to_lowercase()
-        .to_owned();
+    let anime = utils::sanitize_from_path(anime_name.to_string());
+    println!("{}", anime);
 
     get_anime_episodes_and_download_the_episodes(anime.to_string(), anime_name)
         .await
@@ -114,18 +106,10 @@ async fn check_downloads() -> Result<serde_json::Value, String> {
                     let folder_path = anime_dir.join(&folder_name);
 
                     let downloaded_episodes = count_mp4_files(&folder_path);
-                    let anime_url_ending = folder_name
-                        .to_string_lossy()
-                        .trim()
-                        .replace("(", "")
-                        .replace(")", "")
-                        .replace(" ", "-")
-                        .replace("!", "")
-                        .replace("/", "")
-                        .replace(".", "")
-                        .replace("'", "")
-                        .to_lowercase()
-                        .to_owned();
+                    let anime_url_ending =
+                        utils::sanitize_from_path(folder_name.to_string_lossy().to_string());
+
+                    println!("{}", anime_url_ending);
 
                     let total_episodes = scraper::get_how_many_episodes_there_are(anime_url_ending)
                         .await.expect("msg")
