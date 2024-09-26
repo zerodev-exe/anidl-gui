@@ -4,6 +4,12 @@ import { useDownload, DownloadInfo } from '../contexts/DownloadContext';
 import "./Download.css";
 import DownloadProgress from "../components/DownloadProgress";
 
+interface SectionProps {
+    title: string;
+    items: { folder: string; progress: number; downloadedEpisodes: number; totalEpisodes: number }[];
+    color: string;
+}
+
 function Download() {
     const { downloading, setDownloading, downloaded, setDownloaded, ongoing, setOngoing } = useDownload();
     const [loading, setLoading] = useState(true); // Initial loading state
@@ -80,40 +86,33 @@ function Download() {
                         ))}
                     </div>
 
-                    <h1>Ongoing</h1>
-                    <div className="download-grid">
-                        {ongoing.map((info, index) => (
-                            <div key={index} className="download-item">
-                                <span className="folder-name">{info.folder}</span>
-                                <DownloadProgress 
-                                    progress={info.progress} 
-                                    fileName={info.folder} 
-                                    downloadedEpisodes={info.downloadedEpisodes}
-                                    totalEpisodes={info.totalEpisodes}
-                                    color="#00008b" // Set the color to blue for ongoing downloads
-                                />
-                            </div>
-                        ))}
-                    </div>
-
-                    <h1>Downloaded</h1>
-                    <div className="download-grid">
-                        {downloaded.map((info, index) => (
-                            <div key={index} className="download-item">
-                                <span className="folder-name">{info.folder}</span>
-                                <DownloadProgress 
-                                    progress={info.progress} 
-                                    fileName={info.folder} 
-                                    downloadedEpisodes={info.downloadedEpisodes}
-                                    totalEpisodes={info.totalEpisodes}
-                                    color="#222222"
-                                />
-                            </div>
-                        ))}
-                    </div>
+                    <Section title="Ongoing" items={ongoing} color="#00008b" />
+                    <Section title="Downloaded" items={downloaded} color="#222222" />
                 </>
             )}
         </div>
+    );
+}
+
+function Section({ title, items, color }: SectionProps) {
+    return (
+        <>
+            <h1>{title}</h1>
+            <div className="download-grid">
+                {items.map((info, index) => (
+                    <div key={index} className="download-item">
+                        <span className="folder-name">{info.folder}</span>
+                        <DownloadProgress 
+                            progress={info.progress} 
+                            fileName={info.folder} 
+                            downloadedEpisodes={info.downloadedEpisodes}
+                            totalEpisodes={info.totalEpisodes}
+                            color={color}
+                        />
+                    </div>
+                ))}
+            </div>
+        </>
     );
 }
 
