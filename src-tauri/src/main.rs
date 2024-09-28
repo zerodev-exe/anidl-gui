@@ -52,19 +52,8 @@ async fn retry_button(anime_name: &str) -> Result<(), String> {
     }
 
     let anime = utils::sanitize_from_path(anime_name.to_string());
-    println!("{}", anime);
 
-    get_anime_episodes_and_download_the_episodes(anime.to_string(), anime_name)
-        .await
-        .unwrap();
-
-    let notification = tauri::api::notification::Notification::new("Download Complete");
-
-    notification
-        .title("Download Complete")
-        .body(format!("The download of {} is complete!", anime_name))
-        .show()
-        .map_err(|e| e.to_string())?;
+    download_anime(&anime, anime_name).await.unwrap();
 
     Ok(())
 }
@@ -93,6 +82,8 @@ async fn download_anime(anime_url_ending: &str, anime_name: &str) -> Result<(), 
 async fn check_downloads() -> Result<serde_json::Value, String> {
     let anime_dir = dirs::video_dir().unwrap().join("Anime");
 
+    let dotfile_path = anime_dir.join(".anime_episodes");
+
     let mut downloading = Vec::new();
     let mut downloaded = Vec::new();
     let mut ongoing = Vec::new();
@@ -102,37 +93,29 @@ async fn check_downloads() -> Result<serde_json::Value, String> {
         for entry in entries.flatten() {
             if let Ok(file_type) = entry.file_type() {
                 if file_type.is_dir() {
-                    let folder_name = entry.file_name();
+                    let folder_name = entry.file_name().to_string_lossy().to_string();
                     let folder_path = anime_dir.join(&folder_name);
 
                     let downloaded_episodes = count_mp4_files(&folder_path);
-                    let anime_url_ending =
-                        utils::sanitize_from_path(folder_name.to_string_lossy().to_string());
+                    let anime_url_ending = utils::sanitize_from_path(folder_name.clone());
 
-                    println!("{}", anime_url_ending);
-
-                    let total_episodes = scraper::get_how_many_episodes_there_are(anime_url_ending)
-                        .await.expect("msg")
-                        .unwrap_or(0);
+                    let total_episodes = scraper::get_how_many_episodes_there_are(
+                        anime_url_ending,
+                        dotfile_path.clone(),
+                    )
+                    .await
+                    .expect("msg")
+                    .unwrap_or(0);
 
                     if downloaded_episodes < total_episodes {
-                        downloading.push(folder_name.to_string_lossy().into_owned());
-                        progress.insert(
-                            folder_name.to_string_lossy().into_owned(),
-                            (downloaded_episodes, total_episodes),
-                        );
+                        downloading.push(folder_name.clone());
+                        progress.insert(folder_name.clone(), (downloaded_episodes, total_episodes));
                     } else if downloaded_episodes == total_episodes && has_tmp_file(&folder_path) {
-                        ongoing.push(folder_name.to_string_lossy().into_owned());
-                        progress.insert(
-                            folder_name.to_string_lossy().into_owned(),
-                            (downloaded_episodes, total_episodes),
-                        );
+                        ongoing.push(folder_name.clone());
+                        progress.insert(folder_name.clone(), (downloaded_episodes, total_episodes));
                     } else if downloaded_episodes > 0 {
-                        downloaded.push(folder_name.to_string_lossy().into_owned());
-                        progress.insert(
-                            folder_name.to_string_lossy().into_owned(),
-                            (downloaded_episodes, total_episodes),
-                        );
+                        downloaded.push(folder_name.clone());
+                        progress.insert(folder_name.clone(), (downloaded_episodes, total_episodes));
                     }
                 }
             }

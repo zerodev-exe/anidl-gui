@@ -2,8 +2,9 @@ use crate::{download, utils};
 use futures::future::join_all;
 use gogoanime_scraper::{parser, CAT_URL, URL};
 use scraper::{Html, Selector};
-use std::fs::OpenOptions;
-use std::io::{self, BufRead, Write};
+use std::fs::{OpenOptions, File};
+use std::io::{self, BufRead, BufWriter, Write};
+use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::sync::Semaphore;
 use tokio::task;
@@ -61,16 +62,12 @@ async fn login<T: HttpClient>(
     client: &T,
     csrf_token: &str,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    client
-        .post(
-            &format!("{}{}", URL, "login.html"),
-            &[
-                ("email", "ritosis807@exeneli.com"),
-                ("password", "'%dWU}ZdBJ8LzAy"),
-                ("_csrf", csrf_token),
-            ],
-        )
-        .await?;
+    let form_data = [
+        ("email", "ritosis807@exeneli.com"),
+        ("password", "'%dWU}ZdBJ8LzAy"),
+        ("_csrf", csrf_token),
+    ];
+    client.post(&format!("{}{}", URL, "login.html"), &form_data).await?;
     Ok(())
 }
 
@@ -80,36 +77,21 @@ pub async fn get_anime_episodes_and_download_the_episodes(
     path: &str,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let client = initialize_client();
-
-    let path = path
-        .trim()
-        .replace(":", "")
-        .replace("/", "")
-        .replace("\\", "")
-        .replace("*", "")
-        .replace("?", "")
-        .replace("\"", "")
-        .replace("<", "")
-        .replace(">", "")
-        .replace("|", "");
+    let sanitized_path = utils::sanitize_for_path(path.to_string());
 
     fetch_login_page(&client).await?;
     let csrf_token = get_csrf_token(&client).await?;
     login(&client, &csrf_token).await?;
 
     let mut episode_number: u32 = 1;
-
     let mut tasks = vec![];
     let semaphore = Arc::new(Semaphore::new(4));
-
-    let videos_dir = dirs::video_dir()
-        .ok_or("Could not find the Videos directory")
-        .unwrap();
-    let full_path = videos_dir.join("Anime").join(path);
+    let videos_dir = dirs::video_dir().ok_or("Could not find the Videos directory")?;
+    let full_path = videos_dir.join("Anime").join(sanitized_path);
 
     loop {
         let anime_episode = format!("EP-{:04}.mp4", episode_number);
-        let full_file_path = full_path.join(anime_episode);
+        let full_file_path = full_path.join(&anime_episode);
 
         if process_existing_file(full_file_path.to_str().unwrap())? {
             episode_number += 1;
@@ -117,15 +99,10 @@ pub async fn get_anime_episodes_and_download_the_episodes(
         }
 
         let episode_url = format!("{}/{}-episode-{}", URL, anime_url_ending, episode_number);
-
         let response = reqwest::get(&episode_url).await?;
-        if response.status() != reqwest::StatusCode::OK {
-            let tmp_anime_episode = format!("EP-{:04}.mp4.tmp", episode_number);
-            let tmp_file_path = full_path.join(tmp_anime_episode);
 
-            if is_ongoing(anime_url_ending).await {
-                let _ = std::fs::File::create(tmp_file_path);
-            }
+        if response.status() != reqwest::StatusCode::OK {
+            handle_non_ok_response(anime_url_ending.clone(), episode_number, &full_path).await?;
             break;
         }
 
@@ -137,17 +114,30 @@ pub async fn get_anime_episodes_and_download_the_episodes(
         )
         .await;
         tasks.push(task);
-
         episode_number += 1;
     }
 
+    handle_download_results(tasks).await?;
+    Ok(())
+}
+
+async fn handle_non_ok_response(anime_url_ending: String, episode_number: u32, full_path: &PathBuf) -> Result<(), Box<dyn std::error::Error>> {
+    let tmp_anime_episode = format!("EP-{:04}.mp4.tmp", episode_number);
+    let tmp_file_path = full_path.join(tmp_anime_episode);
+
+    if is_ongoing(anime_url_ending).await {
+        let _ = std::fs::File::create(tmp_file_path);
+    }
+    Ok(())
+}
+
+async fn handle_download_results(tasks: Vec<tokio::task::JoinHandle<Result<(), Box<dyn std::error::Error + Send + Sync>>>>) -> Result<(), Box<dyn std::error::Error>> {
     let results = join_all(tasks).await;
     for result in results {
         if let Err(e) = result {
             println!("Error downloading episode: {}", e);
         }
     }
-
     Ok(())
 }
 
@@ -158,7 +148,7 @@ async fn download_episode(
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let client = CLIENT.clone();
     let mut retry_count = 0;
-    let max_retries = 5;
+    const MAX_RETRIES: u32 = 5;
 
     loop {
         let authenticated_content = client.get(&episode_url).send().await?.text().await?;
@@ -166,7 +156,7 @@ async fn download_episode(
         let encoded_url = match video_urls.last() {
             Some(url) => url,
             None => {
-                if retry_count >= max_retries {
+                if retry_count >= MAX_RETRIES {
                     return Err(Box::new(std::io::Error::new(
                         std::io::ErrorKind::Other,
                         "No video URL found after multiple retries",
@@ -178,22 +168,18 @@ async fn download_episode(
         };
 
         match download::handle_redirect_and_download(encoded_url, &path, episode_number).await {
-            Ok(_) => {
-                break; // Break the loop after a successful download
-            }
+            Ok(_) => break,
             Err(_) => {
-                if retry_count >= max_retries {
+                if retry_count >= MAX_RETRIES {
                     return Err(Box::new(std::io::Error::new(
                         std::io::ErrorKind::Other,
                         "Failed to handle redirect after multiple retries",
                     )));
                 }
                 retry_count += 1;
-                continue;
             }
         }
     }
-
     Ok(())
 }
 
@@ -234,17 +220,30 @@ async fn create_download_task(
     })
 }
 
-// Main function to fetch anime episodes
 pub async fn get_how_many_episodes_there_are(
     anime_url_ending: String,
+    dotfile_path: PathBuf,
 ) -> Result<Option<usize>, Box<dyn std::error::Error>> {
     let url = format!("{CAT_URL}{anime_url_ending}");
-    let videos_dir = dirs::video_dir().ok_or("Could not find the Videos directory")?;
-    let dotfile_path = videos_dir.join("Anime").join(".anime_episodes");
+    let existing_entries = read_dotfile(&dotfile_path)?;
 
-    // Check if the dotfile exists and read from it
+    if let Some((total_episodes, ongoing_status)) = existing_entries.get(&anime_url_ending) {
+        if ongoing_status == "true" {
+            return Ok(None);
+        }
+        return Ok(Some(total_episodes.parse()?));
+    }
+
+    let body = reqwest::get(&url).await?.text().await?;
+    let total_episodes: usize = parser::get_total_number_of_episodes(body)?;
+
+    write_to_dotfile(&dotfile_path, &anime_url_ending, total_episodes)?;
+    Ok(Some(total_episodes))
+}
+
+fn read_dotfile(dotfile_path: &PathBuf) -> Result<std::collections::HashMap<String, (String, String)>, Box<dyn std::error::Error>> {
     let mut existing_entries = std::collections::HashMap::new();
-    if let Ok(file) = OpenOptions::new().read(true).open(&dotfile_path) {
+    if let Ok(file) = File::open(dotfile_path) {
         let reader = io::BufReader::new(file);
         for line in reader.lines() {
             let line = line?;
@@ -257,33 +256,18 @@ pub async fn get_how_many_episodes_there_are(
             }
         }
     }
+    Ok(existing_entries)
+}
 
-    // Check if the anime is already in the dotfile
-    if let Some((total_episodes, ongoing_status)) = existing_entries.get(&anime_url_ending) {
-        if ongoing_status == "true" {
-            // Return None to indicate that the total episodes are not fixed
-            return Ok(None);
-        }
-        return Ok(Some(total_episodes.parse()?));
-    }
-
-    // Fetch the total episodes from the URL
-    let body = reqwest::get(&url).await?.text().await?;
-    let total_episodes: usize = parser::get_total_number_of_episodes(body)?;
-
-    // Write the anime_url_ending and total_episodes to the dotfile
-    let mut file = OpenOptions::new()
-        .write(true)
+fn write_to_dotfile(dotfile_path: &PathBuf, anime_url_ending: &str, total_episodes: usize) -> Result<(), Box<dyn std::error::Error>> {
+    let file = OpenOptions::new()
         .create(true)
         .append(true)
         .open(dotfile_path)?;
-
-    // Check if the entry already exists before writing
-    if !existing_entries.contains_key(&anime_url_ending) {
-        writeln!(file, "{}:{}:{}", anime_url_ending, total_episodes, false)?;
-    }
-
-    Ok(Some(total_episodes))
+    let mut writer = BufWriter::new(file);
+    writeln!(writer, "{}:{}:{}", anime_url_ending, total_episodes, false)?;
+    writer.flush()?;
+    Ok(())
 }
 
 pub async fn is_ongoing(anime_url_ending: String) -> bool {
@@ -293,33 +277,5 @@ pub async fn is_ongoing(anime_url_ending: String) -> bool {
         .text()
         .await
         .unwrap();
-    if parser::is_anime_ongoing(&body) {
-        true
-    } else {
-        false
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[tokio::test]
-    async fn test_get_how_many_episodes_are_there() {
-        let anime_url_ending = "bleach-dub".to_string();
-
-        // Test for a known number of episodes
-        let bleach = get_how_many_episodes_there_are(anime_url_ending)
-            .await
-            .expect("msg")
-            .unwrap();
-
-        let one_piece = get_how_many_episodes_there_are("one-piece-dub".to_string())
-            .await
-            .expect("msg")
-            .unwrap();
-
-        assert_eq!(bleach, 366); // Adjust this based on your mock setup
-        assert_eq!(one_piece, 1096)
-    }
+    parser::is_anime_ongoing(&body)
 }

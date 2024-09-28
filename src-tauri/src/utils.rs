@@ -1,6 +1,5 @@
 pub fn sanitize_for_path(path: String) -> String {
-     path
-        .trim()
+    path.trim()
         .replace(":", "")
         .replace("/", "")
         .replace("\\", "")
@@ -14,15 +13,14 @@ pub fn sanitize_for_path(path: String) -> String {
 }
 
 pub fn sanitize_from_path(path: String) -> String {
-    path
-                        .trim()
-                        .replace("(", "")
-                        .replace(")", "")
-                        .replace(" ", "-")
-                        .replace("!", "")
-                        .replace("/", "")
-                        .replace(".", "")
-                        .replace("'", "")
-                        .to_lowercase()
-                        .to_owned()
+    path.trim()
+        .replace("(", "")
+        .replace(")", "")
+        .replace(" ", "-")
+        .replace("!", "")
+        .replace("/", "")
+        .replace(".", "")
+        .replace("'", "")
+        .to_lowercase()
+        .to_owned()
 }
