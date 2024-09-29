@@ -43,8 +43,13 @@ function Download() {
         };
 
         checkDownloads();
-        const interval = setInterval(checkDownloads, 5000);
+        if (loading == true) {
+            const interval = setInterval(checkDownloads, 10000000000);
         return () => clearInterval(interval);
+        } else {
+            const interval = setInterval(checkDownloads, 1000);
+        return () => clearInterval(interval);
+        }
     }, [setDownloading, setDownloaded, setOngoing]);
 
     const handleDownloadClick = async (folder: string) => {
