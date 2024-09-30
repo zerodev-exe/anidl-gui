@@ -1,14 +1,15 @@
 {
-    "version": "v1.0.0",
-    "notes": "Initial release.",
+    "version": "1.1.1",
+    "notes": "See the assets to download this version and install.",
+    "pub_date": "2024-09-30T01:14:33.065Z",
     "platforms": {
-        "darwin-x86_64": {
-            "signature": "Content of app.tar.gz.sig",
-            "url": "https://github.com/zerodev-exe/anidl-gui/releases/download/v1.1.0/anidl-gui_1.1.0_aarch64.dmg"
+        "darwin-aarch64": {
+            "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTV05MOE5YbWtCS0RzUVNDaUZabEMxSVplRVg2S0JpdjkyOVpoMVNsb242b1h3cFphdjg1RnFsTXVBd0x3eFBNdGQyYmZrTTdMa0pjN1l6dXoyR05yTHFjOFlySVNlamc4PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzI3NjU4NjA0CWZpbGU6YW5pZGwtZ3VpLmFwcC50YXIuZ3oKaGtVeHQ3QWx1MmpaaVNLRERYM1hNLzVxZ3AwcTFJM2QwbGVaWHQ2c0FkeFYvV0UzRXhnSEQyS09qaXZ5T3lBWjAyTEtVakg0dldQWm4vck80MkJxRGc9PQo=",
+            "url": "https://github.com/zerodev-exe/anidl-gui/releases/download/v1.1.1/anidl-gui_aarch64.app.tar.gz"
         },
         "windows-x86_64": {
-            "signature": "Content of app-setup.nsis.sig",
-            "url": "https://github.com/zerodev-exe/anidl-gui/releases/download/v1.1.0/anidl-gui_1.1.0_x64_en-US.msi"
+            "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTV05MOE5YbWtCS0ZwNmNRSVh3bGsxSGRxbTBXWjJZQ0tJM0MrdWdDcFNSMlNPT1dPd2x6L1JKdDNaZU9ETjZrb0VLbEJJcWFCa2VtTTY5Snk5NkVwSElJWDEzNXV5VFFVPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzI3NjU4ODcwCWZpbGU6YW5pZGwtZ3VpXzEuMS4xX3g2NF9lbi1VUy5tc2kuemlwCnE1Rk5VeDdjTmFDRlZoaVE0S2NrRkVvYWU3cmpIa3VKOXI3ZUs2RzJKd2lpcHhsVC95MEFoQUtMdXFWT1JoZDhuVXRkZG5IcmNtdlEydTBjNDdDM0J3PT0K",
+            "url": "https://github.com/zerodev-exe/anidl-gui/releases/download/v1.1.1/anidl-gui_1.1.1_x64_en-US.msi.zip"
         }
     }
 }
