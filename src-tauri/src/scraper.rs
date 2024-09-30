@@ -2,7 +2,7 @@ use crate::{download, utils};
 use futures::future::join_all;
 use gogoanime_scraper::{parser, CAT_URL, URL};
 use scraper::{Html, Selector};
-use std::fs::{OpenOptions, File};
+use std::fs::{File, OpenOptions};
 use std::io::{self, BufRead, BufWriter, Write};
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -67,7 +67,9 @@ async fn login<T: HttpClient>(
         ("password", "'%dWU}ZdBJ8LzAy"),
         ("_csrf", csrf_token),
     ];
-    client.post(&format!("{}{}", URL, "login.html"), &form_data).await?;
+    client
+        .post(&format!("{}{}", URL, "login.html"), &form_data)
+        .await?;
     Ok(())
 }
 
@@ -121,7 +123,11 @@ pub async fn get_anime_episodes_and_download_the_episodes(
     Ok(())
 }
 
-async fn handle_non_ok_response(anime_url_ending: String, episode_number: u32, full_path: &PathBuf) -> Result<(), Box<dyn std::error::Error>> {
+async fn handle_non_ok_response(
+    anime_url_ending: String,
+    episode_number: u32,
+    full_path: &PathBuf,
+) -> Result<(), Box<dyn std::error::Error>> {
     let tmp_anime_episode = format!("EP-{:04}.mp4.tmp", episode_number);
     let tmp_file_path = full_path.join(tmp_anime_episode);
 
@@ -131,7 +137,9 @@ async fn handle_non_ok_response(anime_url_ending: String, episode_number: u32, f
     Ok(())
 }
 
-async fn handle_download_results(tasks: Vec<tokio::task::JoinHandle<Result<(), Box<dyn std::error::Error + Send + Sync>>>>) -> Result<(), Box<dyn std::error::Error>> {
+async fn handle_download_results(
+    tasks: Vec<tokio::task::JoinHandle<Result<(), Box<dyn std::error::Error + Send + Sync>>>>,
+) -> Result<(), Box<dyn std::error::Error>> {
     let results = join_all(tasks).await;
     for result in results {
         if let Err(e) = result {
@@ -241,7 +249,9 @@ pub async fn get_how_many_episodes_there_are(
     Ok(Some(total_episodes))
 }
 
-fn read_dotfile(dotfile_path: &PathBuf) -> Result<std::collections::HashMap<String, (String, String)>, Box<dyn std::error::Error>> {
+fn read_dotfile(
+    dotfile_path: &PathBuf,
+) -> Result<std::collections::HashMap<String, (String, String)>, Box<dyn std::error::Error>> {
     let mut existing_entries = std::collections::HashMap::new();
     if let Ok(file) = File::open(dotfile_path) {
         let reader = io::BufReader::new(file);
@@ -259,7 +269,11 @@ fn read_dotfile(dotfile_path: &PathBuf) -> Result<std::collections::HashMap<Stri
     Ok(existing_entries)
 }
 
-fn write_to_dotfile(dotfile_path: &PathBuf, anime_url_ending: &str, total_episodes: usize) -> Result<(), Box<dyn std::error::Error>> {
+fn write_to_dotfile(
+    dotfile_path: &PathBuf,
+    anime_url_ending: &str,
+    total_episodes: usize,
+) -> Result<(), Box<dyn std::error::Error>> {
     let file = OpenOptions::new()
         .create(true)
         .append(true)

@@ -43,11 +43,11 @@ function Download() {
         };
 
         checkDownloads();
-        if (loading == true) {
-            const interval = setInterval(checkDownloads, 10000000000);
+        if (loading) {
+            const interval = setInterval(checkDownloads, 300);
         return () => clearInterval(interval);
-        } else {
-            const interval = setInterval(checkDownloads, 1000);
+        } else if (!loading) {
+            const interval = setInterval(checkDownloads, 10);
         return () => clearInterval(interval);
         }
     }, [setDownloading, setDownloaded, setOngoing]);
