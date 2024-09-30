@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/tauri";
-import { useSearch } from '../contexts/SearchContext';
+import { useSearch } from "../contexts/SearchContext";
 import "../src/App.css";
 
 interface Anime {
@@ -12,14 +12,21 @@ interface Anime {
 }
 
 function Search() {
-  const { searchTerm, setSearchTerm, filterDub, setFilterDub, filterSub, setFilterSub } = useSearch();
+  const {
+    searchTerm,
+    setSearchTerm,
+    filterDub,
+    setFilterDub,
+    filterSub,
+    setFilterSub,
+  } = useSearch();
   const [loading, setLoading] = useState(false);
   const [animeList, setAnimeList] = useState<Anime[]>([]);
 
   useEffect(() => {
     const fetchFilters = async () => {
-      const isDub = await invoke("get_filter_dub") as boolean;
-      const isSub = await invoke("get_filter_sub") as boolean;
+      const isDub = (await invoke("get_filter_dub")) as boolean;
+      const isSub = (await invoke("get_filter_sub")) as boolean;
       setFilterDub(isDub);
       setFilterSub(isSub);
     };
@@ -33,9 +40,13 @@ function Search() {
     let filteredResult = result as Anime[];
 
     if (filterDub) {
-      filteredResult = filteredResult.filter(anime => anime.title.includes(filter_word));
+      filteredResult = filteredResult.filter((anime) =>
+        anime.title.includes(filter_word)
+      );
     } else if (filterSub) {
-      filteredResult = filteredResult.filter(anime => !anime.title.includes(filter_word));
+      filteredResult = filteredResult.filter(
+        (anime) => !anime.title.includes(filter_word)
+      );
     }
 
     setAnimeList(filteredResult);
@@ -74,36 +85,45 @@ function Search() {
     }
   };
 
-  const handleCheckboxChangeDub = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCheckboxChangeDub = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const isChecked = e.target.checked;
     setFilterDub(isChecked);
     if (isChecked) {
       setFilterSub(false); // Uncheck the subbed filter if dubbed is checked
     }
-    await invoke('set_filter_dub', { isDub: isChecked });
-    await invoke('set_filter_sub', { isSub: !isChecked }); // Update sub filter state
+    await invoke("set_filter_dub", { isDub: isChecked });
+    await invoke("set_filter_sub", { isSub: !isChecked }); // Update sub filter state
   };
 
-  const handleCheckboxChangeSub = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCheckboxChangeSub = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const isChecked = e.target.checked;
     setFilterSub(isChecked);
     if (isChecked) {
       setFilterDub(false); // Uncheck the dubbed filter if subbed is checked
     }
-    await invoke('set_filter_sub', { isSub: isChecked });
-    await invoke('set_filter_dub', { isDub: !isChecked }); // Update dub filter state
+    await invoke("set_filter_sub", { isSub: isChecked });
+    await invoke("set_filter_dub", { isDub: !isChecked }); // Update dub filter state
   };
 
   return (
     <div>
-      <form onSubmit={(e) => {
-        e.preventDefault();
-        handleSearch();
-      }}>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSearch();
+        }}
+      >
         <input
           type="text"
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            handleSearch();
+          }}
         />
         <button type="submit" disabled={loading}>
           {loading ? "Searching..." : "Search"}

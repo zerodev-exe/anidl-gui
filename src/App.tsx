@@ -1,5 +1,6 @@
 import Search from '../components/Search';
 import z from '/z.svg';
+import "./App.css";
 
 function App() {
 	return (
