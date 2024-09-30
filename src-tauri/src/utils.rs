@@ -21,6 +21,7 @@ pub fn sanitize_from_path(path: String) -> String {
         .replace("/", "")
         .replace(".", "")
         .replace("'", "")
+        .replace(",", "")
         .to_lowercase()
         .to_owned()
 }
