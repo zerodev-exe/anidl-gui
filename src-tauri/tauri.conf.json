@@ -40,7 +40,7 @@
         "updater": {
             "active": true,
             "endpoints": [
-                "https://raw.githubusercontent.com/zerodev-exe/anidl-gui/refs/heads/master/latest.json"
+                "https://github.com/zerodev-exe/anidl-gui/releases/latest/download/latest.json"
             ],
             "dialog": true,
             "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDQ5QzYwRDgzOTM1NjU4ODYKUldTR1dGYVRndzNHU1NyNUhocHc5WWhYMzRKSmE3aFlOZHRzaFZLaFFhMTgyTWFSRjEwSkFTOEwK"
