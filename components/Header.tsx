@@ -4,6 +4,8 @@ import About from "../src/About";
 import Download from "../src/Download";
 import Settings from "../src/Settings";
 import "./Header.css";
+import { checkForUpdates } from '../components/utils/Update';
+
 
 function Header() {
   return (
@@ -24,6 +26,8 @@ function Header() {
               <Link to="/about" className="nav-link">
                 <li className="nav-item">About</li>
               </Link>
+			<button onClick={checkForUpdates}>Check for Updates</button>
+
             </ul>
           </nav>
         </div>

@@ -1,0 +1,14 @@
+{
+    "version": "v1.0.0",
+    "notes": "Initial release.",
+    "platforms": {
+        "darwin-x86_64": {
+            "signature": "Content of app.tar.gz.sig",
+            "url": "https://github.com/zerodev-exe/anidl-gui/releases/download/v1.1.0/anidl-gui_1.1.0_aarch64.dmg"
+        },
+        "windows-x86_64": {
+            "signature": "Content of app-setup.nsis.sig",
+            "url": "https://github.com/zerodev-exe/anidl-gui/releases/download/v1.1.0/anidl-gui_1.1.0_x64_en-US.msi"
+        }
+    }
+}
