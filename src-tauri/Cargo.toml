@@ -1,7 +1,7 @@
 [package]
 name = "anidl-gui"
-version = "0.1.0"
-description = "A Tauri App"
+version = "0.0.0"
+description = "The fastest anime scraper/downloader"
 authors = ["Zero"]
 edition = "2021"
 
