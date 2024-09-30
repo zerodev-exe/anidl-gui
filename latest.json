@@ -1,15 +1,15 @@
 {
-  "version": "1.1.2",
+  "version": "1.1.3",
   "notes": "See the assets to download this version and install.",
-  "pub_date": "2024-09-30T03:20:24.589Z",
+  "pub_date": "2024-09-30T03:41:57.083Z",
   "platforms": {
     "darwin-aarch64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTV05MOE5YbWtCS0djWEx5emFsSUlQV2dtc1hxaXdrcm1IeVRFWWlRNURJUkZQVWsvQmh0NHVzaDRpblBkMjY5Y2ZVbi9KaCtDUTdTVkVRbk9tSTA5UHBuQ2pHRDl2SVFNPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzI3NjY2MTc4CWZpbGU6YW5pZGwtZ3VpLmFwcC50YXIuZ3oKZlY0ejEyZFI2bkRoWVVSOXVNRDRvZGNDTGZMMllTRmtkQ3Y4NnpIYWtlY2hQeWxoYmtpK0VoRWx5T2lUeDVRUFhGYUF2SHoxRGQwVmk1cE8rUFV2Q1E9PQo=",
-      "url": "https://github.com/zerodev-exe/anidl-gui/releases/download/v1.1.2/anidl-gui_aarch64.app.tar.gz"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTV05MOE5YbWtCS0QycnNQcXFHRWZzelNyUDdqampIcGRvdHFlcUFDaXVseVI5Y0ovTENES1J0Y1g2eUtHNDZJRm94RWNsdEY0MXBXcFJsQmcyS3ZJWUpPSU9CS1RJZGc0PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzI3NjY3NDg0CWZpbGU6YW5pZGwtZ3VpLmFwcC50YXIuZ3oKK0Q4NzJYcnl0NWY0U0xFRFJWbkJXWnNPOWM0NFdCTkJDUGs0T2wzV0JsZHJxUTJUSnNpVHNhM1I5M3NlTFhScDNOWExvcTFMNmI2dHlTNUJtb1JmQ3c9PQo=",
+      "url": "https://github.com/zerodev-exe/anidl-gui/releases/download/v1.1.3/anidl-gui_aarch64.app.tar.gz"
     },
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTV05MOE5YbWtCS1A2SFhORmpMSFNaYW9ZQ2JLT0M4TCtDdDdEbk05ZHY2UDdqQUVYVG5sai9QcURiVlVOOTIvdUhNaGF5cytxWm1Mc1lUOHkrSW83L1M4clVYN2sva2dVPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzI3NjY2NDIwCWZpbGU6YW5pZGwtZ3VpXzEuMS4yX3g2NF9lbi1VUy5tc2kuemlwCkxNSHBVNXhnMEhHK01LanhHV2JhSFNsb3hLUVJUMFd4MGJid3NRM2tPc3ExS21SdmNLc2RteTcxcGlOVkRxcm5zM0UrZmpwZXl5V1BPSXNSTU1vYkJBPT0K",
-      "url": "https://github.com/zerodev-exe/anidl-gui/releases/download/v1.1.2/anidl-gui_1.1.2_x64_en-US.msi.zip"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTV05MOE5YbWtCS0s5SGM0ZW1DVWpQc3NEUUY5VU5yUFhwb1BaNzJ2dnUwdnFIYVAvdWlGWXZYbXVZc1lNYmFiazRGYVJWdi93NzljbjNOeFM2OVdwdm1QSHkveWpiR0FZPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzI3NjY3NzEyCWZpbGU6YW5pZGwtZ3VpXzEuMS4zX3g2NF9lbi1VUy5tc2kuemlwCnlUWklsWCtyYVB1aE8vTDNXSkpQcW5JVHFVR3UyT29rMTdaOURiVzRCSS9wUkZjZnlhOUdMYTJoeWxSVzhjUGF2dUJuZTN4Mm1qZ3NwejNNS0dUZkJRPT0K",
+      "url": "https://github.com/zerodev-exe/anidl-gui/releases/download/v1.1.3/anidl-gui_1.1.3_x64_en-US.msi.zip"
     }
   }
 }
