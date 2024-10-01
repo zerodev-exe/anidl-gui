@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
 use std::fs;
-use toml;
 
 #[derive(Serialize, Deserialize)]
 struct Settings {

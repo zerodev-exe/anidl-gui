@@ -4,7 +4,7 @@ use gogoanime_scraper::{parser, CAT_URL, URL};
 use scraper::{Html, Selector};
 use std::fs::{File, OpenOptions};
 use std::io::{self, BufRead, BufWriter, Write};
-use std::path::PathBuf;
+use std::path::{PathBuf, Path};
 use std::sync::Arc;
 use tokio::sync::Semaphore;
 use tokio::task;
@@ -126,7 +126,7 @@ pub async fn get_anime_episodes_and_download_the_episodes(
 async fn handle_non_ok_response(
     anime_url_ending: String,
     episode_number: u32,
-    full_path: &PathBuf,
+    full_path: &Path,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let tmp_anime_episode = format!("EP-{:04}.mp4.tmp", episode_number);
     let tmp_file_path = full_path.join(tmp_anime_episode);
@@ -193,7 +193,7 @@ async fn download_episode(
 
 async fn fetch_login_page(client: &reqwest::Client) -> Result<(), reqwest::Error> {
     client
-        .get(&format!("{}{}", URL, "login.html"))
+        .get(format!("{}{}", URL, "login.html"))
         .send()
         .await?;
     Ok(())
@@ -279,7 +279,7 @@ fn write_to_dotfile(
         .append(true)
         .open(dotfile_path)?;
     let mut writer = BufWriter::new(file);
-    writeln!(writer, "{}:{}:{}", anime_url_ending, total_episodes, false)?;
+    writeln!(writer, "{}:{}:false", anime_url_ending, total_episodes)?;
     writer.flush()?;
     Ok(())
 }

@@ -172,8 +172,8 @@ fn main() {
         ])
         .build(tauri::generate_context!("tauri.conf.json"))
         .expect("error while building tauri application");
-    app.run(|_app_handle, event| match event {
-        tauri::RunEvent::Updater(updater_event) => {
+    app.run(|_app_handle, event| {
+        if let tauri::RunEvent::Updater(updater_event) = event {
             match updater_event {
                 tauri::UpdaterEvent::UpdateAvailable {
                     body,
@@ -208,9 +208,7 @@ fn main() {
                 tauri::UpdaterEvent::Error(error) => {
                     println!("failed to update: {}", error);
                 }
-                _ => (),
             }
         }
-        _ => {}
     });
 }
