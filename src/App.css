@@ -23,7 +23,6 @@
   padding-top: 10vh;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   text-align: center;
 }
 
@@ -113,8 +112,14 @@ button {
 }
 
 .thumbnail {
-  height: 200px; /* Set the desired height */
+  width: 200px; /* Set the desired height */
+  height: 200px;
   object-fit: contain; /* Ensures the image covers the area without distortion */
+}
+
+.anime {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
 }
 
 .anime-card {
