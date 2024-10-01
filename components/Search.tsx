@@ -147,26 +147,29 @@ function Search() {
         </label>
       </form>
 
-      {animeList.map((anime, index) => (
-        <div className="anime-card" key={index}>
-          <img className="thumbnail" src={anime.img_url} alt={anime.title} />
-          <p>Title: {anime.title}</p>
-          {anime.status === "downloading" || anime.status === "downloaded" ? (
-            <h5>
-              {anime.status === "downloading" ? "Downloading..." : "Downloaded"}
-            </h5>
-          ) : (
-            <button
-              onClick={() => {
-                console.log(`Button clicked for URL: ${anime.url}`);
-                handleDownload(anime.url, anime.title, index);
-              }}
-            >
-              Download
-            </button>
-          )}
-        </div>
-      ))}
+      <div className="anime">
+        {animeList.map((anime, index) => (
+          <div className="anime-card" key={index}>
+            <img className="thumbnail" src={anime.img_url} alt={anime.title} />
+            <p>Title: {anime.title}</p>
+            {anime.status === "downloading" || anime.status === "downloaded" ? (
+              <h5>
+                {anime.status === "downloading" ? "Downloading..." : "Downloaded"}
+              </h5>
+            ) : (
+              <button
+                onClick={() => {
+                  console.log(`Button clicked for URL: ${anime.url}`);
+                  handleDownload(anime.url, anime.title, index);
+                }}
+              >
+                Download
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+
     </div>
   );
 }
