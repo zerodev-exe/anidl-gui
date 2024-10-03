@@ -3,6 +3,7 @@
     height: 20px;
     background-color: #1a1a1a;
     border-radius: 10px;
+  padding: 10px;
     overflow: hidden;
     position: relative;
     margin-top: 5px;
@@ -24,4 +25,12 @@
     color: #ffff;
     font-size: 12px;
     font-weight: bold;
+}
+
+.download-progress h3 {
+  margin-bottom: 10px;
+}
+
+.download-progress p {
+  margin: 0;
 }
