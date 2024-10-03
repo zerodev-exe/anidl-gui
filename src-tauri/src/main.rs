@@ -10,7 +10,6 @@ use scraper::get_anime_episodes_and_download_the_episodes;
 use serde::Serialize;
 use std::collections::HashMap;
 use std::fs;
-use std::path::Path;
 use std::sync::Mutex;
 
 lazy_static::lazy_static! {
@@ -83,6 +82,7 @@ async fn check_downloads() -> Result<serde_json::Value, String> {
     let anime_dir = dirs::video_dir().unwrap().join("Anime");
 
     let dotfile_path = anime_dir.join(".anime_episodes");
+    utils::delete_if_date_hour_mismatch(&dotfile_path)?;
 
     let mut downloading = Vec::new();
     let mut downloaded = Vec::new();
@@ -96,7 +96,7 @@ async fn check_downloads() -> Result<serde_json::Value, String> {
                     let folder_name = entry.file_name().to_string_lossy().to_string();
                     let folder_path = anime_dir.join(&folder_name);
 
-                    let downloaded_episodes = count_mp4_files(&folder_path);
+                    let downloaded_episodes = utils::count_mp4_files(&folder_path);
                     let anime_url_ending = utils::sanitize_from_path(folder_name.clone());
 
                     let total_episodes = scraper::get_how_many_episodes_there_are(
@@ -110,7 +110,7 @@ async fn check_downloads() -> Result<serde_json::Value, String> {
                     if downloaded_episodes < total_episodes {
                         downloading.push(folder_name.clone());
                         progress.insert(folder_name.clone(), (downloaded_episodes, total_episodes));
-                    } else if downloaded_episodes == total_episodes && has_tmp_file(&folder_path) {
+                    } else if downloaded_episodes == total_episodes && utils::has_tmp_file(&folder_path) {
                         ongoing.push(folder_name.clone());
                         progress.insert(folder_name.clone(), (downloaded_episodes, total_episodes));
                     } else if downloaded_episodes > 0 {
@@ -128,34 +128,6 @@ async fn check_downloads() -> Result<serde_json::Value, String> {
         "ongoing": ongoing,
         "progress": progress
     }))
-}
-
-fn has_tmp_file(dir: &Path) -> bool {
-    if let Ok(entries) = fs::read_dir(dir) {
-        for entry in entries.flatten() {
-            if let Ok(file_type) = entry.file_type() {
-                if file_type.is_file() {
-                    if let Some(extension) = entry.path().extension() {
-                        if extension == "tmp" {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    false
-}
-
-fn count_mp4_files(dir: &Path) -> usize {
-    fs::read_dir(dir)
-        .map(|entries| {
-            entries
-                .filter_map(Result::ok)
-                .filter(|entry| entry.path().extension().map_or(false, |ext| ext == "mp4"))
-                .count()
-        })
-        .unwrap_or(0)
 }
 
 fn main() {
