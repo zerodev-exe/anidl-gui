@@ -82,8 +82,8 @@ function Download() {
                                     </button>
                                 </center>
                                 <DownloadProgress 
-                                    progress={info.progress} 
                                     fileName={info.folder} 
+                                    progress={info.progress} 
                                     downloadedEpisodes={info.downloadedEpisodes}
                                     totalEpisodes={info.totalEpisodes}
                                 />
@@ -108,8 +108,8 @@ function Section({ title, items, color }: SectionProps) {
                     <div key={index} className="download-item">
                         <span className="folder-name">{info.folder}</span>
                         <DownloadProgress 
-                            progress={info.progress} 
                             fileName={info.folder} 
+                            progress={info.progress} 
                             downloadedEpisodes={info.downloadedEpisodes}
                             totalEpisodes={info.totalEpisodes}
                             color={color}
