@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/tauri";
 import { useSearch } from "../contexts/SearchContext";
+import './Search.css'
 
 interface Anime {
   img_url: string;
