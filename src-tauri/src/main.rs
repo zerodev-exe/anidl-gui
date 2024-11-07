@@ -8,18 +8,7 @@ mod utils;
 use gogoanime_scraper::get_anime_list_by_name;
 use scraper::get_anime_episodes_and_download_the_episodes;
 use serde::Serialize;
-use std::collections::HashMap;
 use std::fs;
-use std::sync::Mutex;
-
-lazy_static::lazy_static! {
-    static ref DOWNLOAD_PROGRESS: Mutex<HashMap<String, f64>> = Mutex::new(HashMap::new());
-}
-
-fn update_download_progress(file_path: &str, progress: f64) {
-    let mut progress_map = DOWNLOAD_PROGRESS.lock().unwrap();
-    progress_map.insert(file_path.to_string(), progress);
-}
 
 #[derive(Serialize)]
 struct AnimeInfo {
