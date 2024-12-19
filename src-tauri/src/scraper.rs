@@ -4,7 +4,7 @@ use gogoanime_scraper::{parser, CAT_URL, URL};
 use scraper::{Html, Selector};
 use std::fs::{File, OpenOptions};
 use std::io::{self, BufRead, BufWriter, Write};
-use std::path::{PathBuf, Path};
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use tokio::sync::Semaphore;
 use tokio::task;

@@ -1,10 +1,9 @@
 use reqwest::Client;
+use std::collections::HashMap;
 use std::fs;
 use std::sync::Mutex;
 use tokio::fs::File;
 use tokio::io::AsyncWriteExt;
-use std::collections::HashMap;
-use std::sync::Mutex;
 
 lazy_static::lazy_static! {
     pub static ref DOWNLOAD_PROGRESS: Mutex<HashMap<String, f64>> = Mutex::new(HashMap::new());
@@ -14,7 +13,6 @@ fn update_download_progress(file_path: &str, progress: f64) {
     let mut progress_map = DOWNLOAD_PROGRESS.lock().unwrap();
     progress_map.insert(file_path.to_string(), progress);
 }
-
 
 fn create_dir(file_path: &str) {
     let videos_dir = dirs::video_dir()

@@ -99,7 +99,9 @@ async fn check_downloads() -> Result<serde_json::Value, String> {
                     if downloaded_episodes < total_episodes {
                         downloading.push(folder_name.clone());
                         progress.insert(folder_name.clone(), (downloaded_episodes, total_episodes));
-                    } else if downloaded_episodes == total_episodes && utils::has_tmp_file(&folder_path) {
+                    } else if downloaded_episodes == total_episodes
+                        && utils::has_tmp_file(&folder_path)
+                    {
                         ongoing.push(folder_name.clone());
                         progress.insert(folder_name.clone(), (downloaded_episodes, total_episodes));
                     } else if downloaded_episodes > 0 {
