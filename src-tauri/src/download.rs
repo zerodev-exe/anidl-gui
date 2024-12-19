@@ -1,5 +1,6 @@
 use reqwest::Client;
 use std::fs;
+use std::sync::Mutex;
 use tokio::fs::File;
 use tokio::io::AsyncWriteExt;
 use std::collections::HashMap;
@@ -110,11 +111,10 @@ async fn download_content(
 pub async fn handle_redirect_and_download(
     encoded_url: &str,
     file_path: &str,
-    episode_number: u32,
+    anime_episode: String,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let final_url = handle_redirect_and_get_link(encoded_url, file_path).await?;
     let client = Client::new();
-    let anime_episode = format!("EP-{:04}.mp4", episode_number);
     let videos_dir = dirs::video_dir().ok_or("Could not find the Videos directory")?;
     let full_file_path = videos_dir.join("Anime").join(file_path).join(anime_episode);
     download_content(&client, &final_url, full_file_path.to_str().unwrap()).await?;

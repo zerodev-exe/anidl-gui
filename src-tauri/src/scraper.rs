@@ -92,7 +92,7 @@ pub async fn get_anime_episodes_and_download_the_episodes(
     let full_path = videos_dir.join("Anime").join(sanitized_path);
 
     loop {
-        let anime_episode = format!("EP-{:04}.mp4", episode_number);
+        let anime_episode = format!("EP-{:02}.mp4", episode_number);
         let full_file_path = full_path.join(&anime_episode);
 
         if process_existing_file(full_file_path.to_str().unwrap())? {
@@ -104,7 +104,7 @@ pub async fn get_anime_episodes_and_download_the_episodes(
         let response = reqwest::get(&episode_url).await?;
 
         if response.status() != reqwest::StatusCode::OK {
-            handle_non_ok_response(anime_url_ending.clone(), episode_number, &full_path).await?;
+            handle_non_ok_response(anime_url_ending.clone(), &full_path, anime_episode).await?;
             break;
         }
 
@@ -112,7 +112,7 @@ pub async fn get_anime_episodes_and_download_the_episodes(
             semaphore.clone(),
             episode_url,
             full_path.to_str().unwrap().to_string(),
-            episode_number,
+            anime_episode,
         )
         .await;
         tasks.push(task);
@@ -125,10 +125,10 @@ pub async fn get_anime_episodes_and_download_the_episodes(
 
 async fn handle_non_ok_response(
     anime_url_ending: String,
-    episode_number: u32,
     full_path: &Path,
+    anime_episode: String,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let tmp_anime_episode = format!("EP-{:04}.mp4.tmp", episode_number);
+    let tmp_anime_episode = format!("{}.tmp", anime_episode);
     let tmp_file_path = full_path.join(tmp_anime_episode);
 
     if is_ongoing(anime_url_ending).await {
@@ -152,7 +152,7 @@ async fn handle_download_results(
 async fn download_episode(
     episode_url: String,
     path: String,
-    episode_number: u32,
+    anime_episode: String,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let client = CLIENT.clone();
     let mut retry_count = 0;
@@ -175,7 +175,9 @@ async fn download_episode(
             }
         };
 
-        match download::handle_redirect_and_download(encoded_url, &path, episode_number).await {
+        match download::handle_redirect_and_download(encoded_url, &path, anime_episode.clone())
+            .await
+        {
             Ok(_) => break,
             Err(_) => {
                 if retry_count >= MAX_RETRIES {
@@ -218,13 +220,13 @@ async fn create_download_task(
     semaphore: Arc<Semaphore>,
     episode_url: String,
     path: String,
-    episode_number: u32,
+    anime_episode: String,
 ) -> tokio::task::JoinHandle<Result<(), Box<dyn std::error::Error + Send + Sync>>> {
     let permit = semaphore.clone().acquire_owned().await.unwrap();
     let path_clone = path.clone();
     task::spawn(async move {
         let _permit = permit; // This ensures the semaphore is released when the task completes
-        download_episode(episode_url, path_clone, episode_number).await
+        download_episode(episode_url, path_clone, anime_episode).await
     })
 }
 
